@@ -12,10 +12,28 @@ class Estado:
         # Implementação futura
         pass
 
+    def encontrar_posicao_zero(self):
+        """Encontra a posição do zero (espaço vazio) na matriz."""
+        for i in range(len(self.matriz)):
+            for j in range(len(self.matriz[i])):
+                if self.matriz[i][j] == 0:
+                    return i, j
+    
     def validar_movimento(self, movimento):
         """Valida se um movimento é possível."""
-        # Implementação futura
-        pass
+        linha, coluna = self.encontrar_posicao_zero()
+    
+        # Verifica o movimento solicitado
+        if movimento == "W":
+            return linha > 0
+        elif movimento == "S":
+            return linha < len(self.matriz) - 1
+        elif movimento == "A":
+            return coluna > 0
+        elif movimento == "D":
+            return coluna < len(self.matriz[0]) - 1
+        else:
+            return False  # Movimento inválido
 
     def gerar_sucessor(self, movimento):
         """Gera um novo estado a partir de um movimento válido."""
@@ -37,11 +55,40 @@ class Estado:
 class InterfaceUsuario:
     def iniciar_jogo(self):
         os.system('cls' if os.name == 'nt' else 'clear')  # Limpa a tela
-        print("Bem-vindo ao jogo dos 8!")
+        print("Bem-vindo ao jogo dos 8-PUZZLE!")
         print("MATRIZ INICIAL:")
+    
+    def receber_movimento(self):
+        """Recebe um movimento do usuário."""
+        movimento = input().upper()
+        return movimento
 
+    def mostrar_mensagem(self, mensagem):
+        """Exibe uma mensagem para o usuário."""
+        print(mensagem)
+    
     def finalizar_jogo(self):
         """Exibe uma mensagem ao finalizar o jogo."""
+        print("Obrigado por jogar!")
+
+# Definição da principal do jogo
+def executar_jogo(estado, interface):
+    """Executa o loop principal do jogo."""	
+    estado.mostrar()  # Mostra o estado (matriz) atual
+    interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
+    while True:  # Loop principal do jogo
+        movimento = interface.receber_movimento()  # Recebe um movimento do usuário
+            
+        if movimento == "Q":  # Verifica se o usuário quer desistir
+            interface.finalizar_jogo()
+            break  # Sai do loop e termina o jogo
+
+        # Verifica se o movimento é válido
+        if estado.validar_movimento(movimento):
+            interface.mostrar_mensagem("Movimento válido.")
+            # Aqui você pode adicionar a lógica para aplicar o movimento e atualizar o estado
+        else:
+            interface.mostrar_mensagem("Movimento inválido, tente novamente.")
 
 # Função principal
 def main():
@@ -49,17 +96,10 @@ def main():
     estado_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Exemplo de matriz inicial
 
     estado = Estado(estado_inicial)  # Instancia a classe Estado
-
     interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
+
     interface.iniciar_jogo()
-
-    estado.embaralhar()  # Embaralha a matriz inicial (a implementar)
-    estado.mostrar()  # Mostra o estado (matriz) atual
-
-    # Aqui você pode adicionar o fluxo principal do jogo (movimentos, etc.)
-
-    interface.finalizar_jogo()  # Finaliza o jogo
-
+    executar_jogo(estado, interface) 
 
 if __name__ == "__main__":
     main()
