@@ -22,10 +22,24 @@ class Estado:
         # Implementação futura
         pass
 
-    def avaliar_jogo(self):
+    def avaliar_jogo_1(self,interface):
         """Avalia se o jogo foi resolvido."""
-        # Implementação futura
-        pass
+
+        if self.avaliar_jogo_2():
+            print("VOCE VENCEU, PARABENS!! - FINALIZANDO JOGO...")
+            interface.finalizar_jogo()
+        else:
+            print("AINDA NAO E A MATRIZ CORRETA")
+            print("ENVIAR PARA ALGUMA OUTRA FUNCAO PARA CONTINUAR O JOGO")
+        
+    def avaliar_jogo_2(self):
+        """Avalia se o jogo foi resolvido."""
+        
+        matriz_correta = [[1, 2, 3],            # Matriz Gabarito
+                          [4, 5, 6], 
+                          [7, 8, 0]]
+
+        return self.matriz == matriz_correta    # Realizando o retorno Booleano
 
     def mostrar(self):
         """Exibe o estado atual do jogo."""
@@ -54,9 +68,19 @@ def main():
     interface.iniciar_jogo()
 
     estado.embaralhar()  # Embaralha a matriz inicial (a implementar)
-    estado.mostrar()  # Mostra o estado (matriz) atual
+    #estado.mostrar()  # Mostra o estado (matriz) atual
 
     # Aqui você pode adicionar o fluxo principal do jogo (movimentos, etc.)
+
+    # SIMULÇÃO QUE SERÁ APAGADA COM O DESENVOLVIEMTNO DAS OUTRAS FUNÇÕES DO PRJETO ---------------------------------------------------
+    estado_atual = [[1, 2, 3],                          # Simulando um estado embaralhado a ser avaliado
+                    [4, 5, 6], 
+                    [7, 8, 0]]    
+    estado = Estado(estado_atual)                       # Instanciando um novo objeto (novo estado)
+    estado.mostrar()                                    # Mostra o estado (matriz) atual
+    #-------------------------------------------------------------------------------------------------------------------------------
+
+    estado.avaliar_jogo_1(interface)   
 
     interface.finalizar_jogo()  # Finaliza o jogo
 
