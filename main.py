@@ -7,34 +7,6 @@ class Estado:
         """Inicializa o estado com a matriz 3x3."""
         self.matriz = matriz_inicial
 
-    def embaralhar(self):
-        """Embaralha o estado inicial de forma que seja resolvível."""
-        # Implementação futura
-        pass
-
-    def encontrar_posicao_zero(self):
-        """Encontra a posição do zero (espaço vazio) na matriz."""
-        for i in range(len(self.matriz)):
-            for j in range(len(self.matriz[i])):
-                if self.matriz[i][j] == 0:
-                    return i, j
-    
-    def validar_movimento(self, movimento):
-        """Valida se um movimento é possível."""
-        linha, coluna = self.encontrar_posicao_zero()
-    
-        # Verifica o movimento solicitado
-        if movimento == "W":
-            return linha > 0
-        elif movimento == "S":
-            return linha < len(self.matriz) - 1
-        elif movimento == "A":
-            return coluna > 0
-        elif movimento == "D":
-            return coluna < len(self.matriz[0]) - 1
-        else:
-            return False  # Movimento inválido
-
     def gerar_sucessor(self, movimento):
         """Gera um novo estado a partir de um movimento válido."""
         # Implementação futura
@@ -71,6 +43,34 @@ class InterfaceUsuario:
         """Exibe uma mensagem ao finalizar o jogo."""
         print("Obrigado por jogar!")
 
+def embaralhar(self):
+        """Embaralha o estado inicial de forma que seja resolvível."""
+        # Implementação futura
+        pass
+
+def encontrar_posicao_zero(matriz):
+        """Encontra a posição do zero (espaço vazio) na matriz."""
+        for i in range(len(matriz)):
+            for j in range(len(matriz[i])):
+                if matriz[i][j] == 0:
+                    return i, j
+    
+def validar_movimento(matriz, movimento):
+    """Valida se um movimento é possível."""
+    linha, coluna = encontrar_posicao_zero(matriz)
+    
+    # Verifica o movimento solicitado
+    if movimento == "W":
+        return linha > 0
+    elif movimento == "S":
+        return linha < len(matriz) - 1
+    elif movimento == "A":
+        return coluna > 0
+    elif movimento == "D":
+        return coluna < len(matriz[0]) - 1
+    else:
+        return False  # Movimento inválido
+    
 # Definição da principal do jogo
 def executar_jogo(estado, interface):
     """Executa o loop principal do jogo."""	
@@ -84,7 +84,7 @@ def executar_jogo(estado, interface):
             break  # Sai do loop e termina o jogo
 
         # Verifica se o movimento é válido
-        if estado.validar_movimento(movimento):
+        if validar_movimento(estado.matriz, movimento):
             interface.mostrar_mensagem("Movimento válido.")
             # Aqui você pode adicionar a lógica para aplicar o movimento e atualizar o estado
         else:
