@@ -66,10 +66,47 @@ class InterfaceUsuario:
         """Exibe uma mensagem ao finalizar o jogo."""
         print("Obrigado por jogar!")
 
-def embaralhar(self):
-        """Embaralha o estado inicial de forma que seja resolvível."""
-        # Implementação futura
-        pass
+def troca(matriz, pos1, pos2):
+    """Troca duas posições na matriz e retorna o novo estado da matriz."""
+    matriz_copia = matriz
+    r1, c1 = pos1
+    r2, c2 = pos2
+    matriz_copia[r1][c1], matriz_copia[r2][c2] = matriz[r2][c2], matriz[r1][c1]
+    return matriz_copia
+
+def mover(matriz, movimento):
+    """Move o zero na matriz, se o movimento for válido."""
+    linha, coluna = encontrar_posicao_zero(matriz)
+    
+    if movimento == "W":
+        nova_pos = (linha - 1, coluna)
+    elif movimento == "S":
+        nova_pos = (linha + 1, coluna)
+    elif movimento == "A":
+        nova_pos = (linha, coluna - 1)
+    elif movimento == "D":
+        nova_pos = (linha, coluna + 1)
+    else:
+        return matriz  # Movimento inválido, retorna a matriz sem alterações
+    return troca(matriz, (linha, coluna), nova_pos) #Movimento válido, retorna a matriz com a troca
+
+def embaralhar(matriz, movimentos=100):
+    """Embaralha o puzzle fazendo movimentos válidos aleatórios a partir da solução."""
+    movimentos_possiveis = ["W", "S", "A", "D"]
+    movimentos_opostos = {"W": "S", "S": "W", "A": "D", "D": "A"}
+    
+    ultimo_movimento = None
+
+    for _ in range(movimentos):
+        movimento = random.choice(movimentos_possiveis)
+        # Evita que o movimento seja o oposto do anterior
+        while ultimo_movimento and movimento == movimentos_opostos[ultimo_movimento] and not validar_movimento(matriz, movimento):
+            movimento = random.choice(movimentos_possiveis)
+            ultimo_movimento = movimento
+
+        matriz = mover(matriz, movimento)
+    
+    return matriz
 
 def encontrar_posicao_zero(matriz):
         """Encontra a posição do zero (espaço vazio) na matriz."""
@@ -116,6 +153,12 @@ def executar_jogo(estado, interface):
 # Função principal
 def main():
     """Executa o fluxo principal do jogo."""
+    # # Cria um estado inicial (solução do puzzle)
+    # estado_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+    # # Embaralha o estado inicial para criar um estado inicial de jogo
+    # estado_inicial = embaralhar(estado_inicial, movimentos=100)
+    # # Cria o estado inicial do jogo
+    # estado = Estado(estado_inicial, None)
     estados= []
     estados_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Exemplo de matriz inicial
     estados.append(Estado(estados_inicial,"a"))  # Instancia a classe Estado
