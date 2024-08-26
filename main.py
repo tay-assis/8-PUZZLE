@@ -100,7 +100,7 @@ def embaralhar(matriz, movimentos=100):
     for _ in range(movimentos):
         movimento = random.choice(movimentos_possiveis)
         # Evita que o movimento seja o oposto do anterior
-        while ultimo_movimento and movimento == movimentos_opostos[ultimo_movimento] and not validar_movimento(matriz, movimento):
+        while (ultimo_movimento and movimento == movimentos_opostos[ultimo_movimento]) or (not validar_movimento(matriz, movimento)):
             movimento = random.choice(movimentos_possiveis)
             ultimo_movimento = movimento
 
