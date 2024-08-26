@@ -100,7 +100,7 @@ def embaralhar(matriz, movimentos=100):
     for _ in range(movimentos):
         movimento = random.choice(movimentos_possiveis)
         # Evita que o movimento seja o oposto do anterior
-        while ultimo_movimento and movimento == movimentos_opostos[ultimo_movimento] and not validar_movimento(matriz, movimento):
+        while (ultimo_movimento and movimento == movimentos_opostos[ultimo_movimento]) or (not validar_movimento(matriz, movimento)):
             movimento = random.choice(movimentos_possiveis)
             ultimo_movimento = movimento
 
@@ -134,14 +134,8 @@ def validar_movimento(matriz, movimento):
 # Função principal
 def main():
     """Executa o fluxo principal do jogo."""
-    # # Cria um estado inicial (solução do puzzle)
-    # estado_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
-    # # Embaralha o estado inicial para criar um estado inicial de jogo
-    # estado_inicial = embaralhar(estado_inicial, movimentos=100)
-    # # Cria o estado inicial do jogo
-    # estado = Estado(estado_inicial, None)
+    estado_inicial = embaralhar([[1, 2, 3], [4, 5, 6], [7, 8, 0]], 100)
     estados = []
-    estado_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Exemplo de matriz inicial
     estados.append(Estado(estado_inicial, None))  # Instancia a classe Estado
 
     interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
@@ -164,5 +158,6 @@ def main():
             estados.append(novo_estado)
         else:
             interface.mostrar_mensagem("Movimento inválido, tente novamente.")
+            
 if __name__ == "__main__":
     main()
