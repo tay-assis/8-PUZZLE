@@ -130,25 +130,6 @@ def validar_movimento(matriz, movimento):
         return coluna < len(matriz[0]) - 1
     else:
         return False  # Movimento inválido
-    
-# Definição da principal do jogo
-def executar_jogo(estado, interface):
-    """Executa o loop principal do jogo."""	
-    estado.mostrar()  # Mostra o estado (matriz) atual
-    interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
-    while True:  # Loop principal do jogo
-        movimento = interface.receber_movimento()  # Recebe um movimento do usuário
-            
-        if movimento == "Q":  # Verifica se o usuário quer desistir
-            interface.finalizar_jogo()
-            break  # Sai do loop e termina o jogo
-
-        # Verifica se o movimento é válido
-        if validar_movimento(estado.matriz, movimento):
-            novo_estado = Estado(estado.matriz, movimento)  # Gera um novo estado
-            return novo_estado
-        else:
-            interface.mostrar_mensagem("Movimento inválido, tente novamente.")
 
 # Função principal
 def main():
@@ -159,17 +140,29 @@ def main():
     # estado_inicial = embaralhar(estado_inicial, movimentos=100)
     # # Cria o estado inicial do jogo
     # estado = Estado(estado_inicial, None)
-    estados= []
-    estados_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Exemplo de matriz inicial
-    estados.append(Estado(estados_inicial,"a"))  # Instancia a classe Estado
+    estados = []
+    estado_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Exemplo de matriz inicial
+    estados.append(Estado(estado_inicial, None))  # Instancia a classe Estado
 
     interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
 
     interface.iniciar_jogo()
     while not estados[-1].avaliar_jogo():
-        estados.append(executar_jogo(estados[-1], interface) )  # Executa o jogo
-        for estado in estados:
-            estado.mostrar()  # Mostra o estado (matriz) atuala
+        estado_atual = estados[-1]
+        estado_atual.mostrar()  # Mostra o estado (matriz) atual
+        interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
 
+        movimento = interface.receber_movimento()  # Recebe um movimento do usuário
+            
+        if movimento == "Q":  # Verifica se o usuário quer desistir
+            interface.finalizar_jogo()
+            break  # Sai do loop e termina o jogo
+
+        # Verifica se o movimento é válido
+        if validar_movimento(estado_atual.matriz, movimento):
+            novo_estado = Estado(estado_atual.matriz, movimento)  # Gera um novo estado
+            estados.append(novo_estado)
+        else:
+            interface.mostrar_mensagem("Movimento inválido, tente novamente.")
 if __name__ == "__main__":
     main()
