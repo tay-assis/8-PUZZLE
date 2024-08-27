@@ -38,21 +38,16 @@ class Estado:
     def avaliar_jogo_1(self,interface):
         """Avalia se o jogo foi resolvido."""
 
-        if self.avaliar_jogo_2():
-            print("VOCE VENCEU, PARABENS!! - FINALIZANDO JOGO...")
-            interface.finalizar_jogo()
-        else:
-            print("AINDA NAO E A MATRIZ CORRETA")
-            print("ENVIAR PARA ALGUMA OUTRA FUNCAO PARA CONTINUAR O JOGO")
-        
-    def avaliar_jogo_2(self):
-        """Avalia se o jogo foi resolvido."""
-        
         matriz_correta = [[1, 2, 3],            # Matriz Gabarito
                           [4, 5, 6], 
                           [7, 8, 0]]
 
-        return self.matriz == matriz_correta    # Realizando o retorno Booleano
+        if self.matriz == matriz_correta :
+            print("VOCE VENCEU, PARABENS!! - FINALIZANDO JOGO...")
+            return True
+        else:
+            print("AINDA NAO E A MATRIZ CORRETA")
+            return False
 
     def mostrar(self):
         """Exibe o estado atual do jogo."""
@@ -182,11 +177,6 @@ def main():
 
     interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
 
-    interface.iniciar_jogo()
-    while not estados[-1].avaliar_jogo():
-        estados.append(executar_jogo(estados[-1], interface) )  # Executa o jogo
-        for estado in estados:
-            estado.mostrar()  # Mostra o estado (matriz) atuala
 
 if __name__ == "__main__":
     main()
