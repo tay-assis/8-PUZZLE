@@ -37,8 +37,16 @@ class Estado:
 
     def avaliar_jogo(self):
         """Avalia se o jogo foi resolvido."""
-        # Implementação futura
-        pass
+
+        matriz_correta = [[1, 2, 3],            # Matriz Gabarito
+                          [4, 5, 6], 
+                          [7, 8, 0]]
+
+        if self.matriz == matriz_correta :
+            print("VOCE VENCEU, PARABENS!! - FINALIZANDO JOGO...")
+            return True
+        else:
+            return False
 
     def mostrar(self):
         """Exibe o estado atual do jogo."""
@@ -158,6 +166,6 @@ def main():
             estados.append(novo_estado)
         else:
             interface.mostrar_mensagem("Movimento inválido, tente novamente.")
-            
+
 if __name__ == "__main__":
     main()
