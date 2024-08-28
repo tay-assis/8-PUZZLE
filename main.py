@@ -35,7 +35,7 @@ class Estado:
         return novo_estado
         pass
 
-    def avaliar_jogo_1(self,interface):
+    def avaliar_jogo(self):
         """Avalia se o jogo foi resolvido."""
 
         matriz_correta = [[1, 2, 3],            # Matriz Gabarito
@@ -46,7 +46,6 @@ class Estado:
             print("VOCE VENCEU, PARABENS!! - FINALIZANDO JOGO...")
             return True
         else:
-            print("AINDA NAO E A MATRIZ CORRETA")
             return False
 
     def mostrar(self):
@@ -167,16 +166,6 @@ def main():
             estados.append(novo_estado)
         else:
             interface.mostrar_mensagem("Movimento inválido, tente novamente.")
-
-# Função principal
-def main():
-    """Executa o fluxo principal do jogo."""
-    estados= []
-    estados_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Exemplo de matriz inicial
-    estados.append(Estado(estados_inicial,"a"))  # Instancia a classe Estado
-
-    interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
-
 
 if __name__ == "__main__":
     main()
