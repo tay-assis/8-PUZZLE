@@ -4,37 +4,12 @@ import os
 # Definição da classe Estado
 class Estado:
     def __init__(self,  estado_anterior, movimento): 
-        """Inicializa o estado com a matriz 3x3."""  
-        self.matriz = self.gerar_sucessor(estado_anterior,movimento)
-
-    def gerar_sucessor(self,estado_anterior, movimento):
-        """Gera um novo estado a partir de um movimento válido."""
-        novo_estado = estado_anterior
-        row = 0
-        col = 0
-        # Encontrar a posição do zero
-        for i in range(3):
-            for j in range(3):
-                if estado_anterior[i][j] == 0:
-                    row = i
-                    col = j
-        # atualizar a matriz
-        if movimento == "W":
-            novo_estado[row][col] = estado_anterior[row-1][col]
-            novo_estado[row-1][col] = 0
-        if movimento == "S":
-            novo_estado[row][col] = estado_anterior[row+1][col]
-            novo_estado[row+1][col] = 0
-        if movimento == "A":
-            novo_estado[row][col] = estado_anterior[row][col-1]
-            novo_estado[row][col-1] = 0
-        if movimento == "D":
-            novo_estado[row][col] = estado_anterior[row][col+1]
-            novo_estado[row][col+1] = 0
-            
-        return novo_estado
-        pass
-
+        """Inicializa o estado com a matriz 3x3.""" 
+        if not movimento == None:
+             self.matriz =  mover(estado_anterior, movimento) # gera novo estado da matriz
+        else:        
+            self.matriz = embaralhar(estado_anterior,movimentos=100) # Embaralha a matriz
+        
     def avaliar_jogo(self):
         """Avalia se o jogo foi resolvido."""
 
@@ -142,9 +117,9 @@ def validar_movimento(matriz, movimento):
 # Função principal
 def main():
     """Executa o fluxo principal do jogo."""
-    estado_inicial = embaralhar([[1, 2, 3], [4, 5, 6], [7, 8, 0]], 100)
+
     estados = []
-    estados.append(Estado(estado_inicial, None))  # Instancia a classe Estado
+    estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))  # adiciona Estado inicial do jogo
 
     interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
 
@@ -166,6 +141,7 @@ def main():
             estados.append(novo_estado)
         else:
             interface.mostrar_mensagem("Movimento inválido, tente novamente.")
+
 
 if __name__ == "__main__":
     main()
