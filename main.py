@@ -4,41 +4,25 @@ import os
 # Definição da classe Estado
 class Estado:
     def __init__(self,  estado_anterior, movimento): 
-        """Inicializa o estado com a matriz 3x3."""  
-        self.matriz = self.gerar_sucessor(estado_anterior,movimento)
-
-    def gerar_sucessor(self,estado_anterior, movimento):
-        """Gera um novo estado a partir de um movimento válido."""
-        novo_estado = estado_anterior
-        row = 0
-        col = 0
-        # Encontrar a posição do zero
-        for i in range(3):
-            for j in range(3):
-                if estado_anterior[i][j] == 0:
-                    row = i
-                    col = j
-        # atualizar a matriz
-        if movimento == "W":
-            novo_estado[row][col] = estado_anterior[row-1][col]
-            novo_estado[row-1][col] = 0
-        if movimento == "S":
-            novo_estado[row][col] = estado_anterior[row+1][col]
-            novo_estado[row+1][col] = 0
-        if movimento == "A":
-            novo_estado[row][col] = estado_anterior[row][col-1]
-            novo_estado[row][col-1] = 0
-        if movimento == "D":
-            novo_estado[row][col] = estado_anterior[row][col+1]
-            novo_estado[row][col+1] = 0
-            
-        return novo_estado
-        pass
-
+        """Inicializa o estado com a matriz 3x3.""" 
+        if not movimento == None:
+             self.matriz =  mover(estado_anterior, movimento) # gera novo estado da matriz
+        else:        
+            self.matriz = embaralhar(estado_anterior,movimentos=100) # Embaralha a matriz
+        
     def avaliar_jogo(self):
         """Avalia se o jogo foi resolvido."""
-        # Implementação futura
-        pass
+
+        matriz_correta = [[1, 2, 3],            # Matriz Gabarito
+                          [4, 5, 6], 
+                          [7, 8, 0]]
+
+        if self.matriz == matriz_correta :
+            self.mostrar()
+            print("VOCE VENCEU, PARABENS!! - FINALIZANDO JOGO...")
+            return True
+        else:
+            return False
 
     def mostrar(self):
         """Exibe o estado atual do jogo."""
@@ -100,7 +84,7 @@ def embaralhar(matriz, movimentos=100):
     for _ in range(movimentos):
         movimento = random.choice(movimentos_possiveis)
         # Evita que o movimento seja o oposto do anterior
-        while ultimo_movimento and movimento == movimentos_opostos[ultimo_movimento] and not validar_movimento(matriz, movimento):
+        while (ultimo_movimento and movimento == movimentos_opostos[ultimo_movimento]) or (not validar_movimento(matriz, movimento)):
             movimento = random.choice(movimentos_possiveis)
             ultimo_movimento = movimento
 
@@ -130,13 +114,22 @@ def validar_movimento(matriz, movimento):
         return coluna < len(matriz[0]) - 1
     else:
         return False  # Movimento inválido
-    
-# Definição da principal do jogo
-def executar_jogo(estado, interface):
-    """Executa o loop principal do jogo."""	
-    estado.mostrar()  # Mostra o estado (matriz) atual
-    interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
-    while True:  # Loop principal do jogo
+
+# Função principal
+def main():
+    """Executa o fluxo principal do jogo."""
+
+    estados = []
+    estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))  # adiciona Estado inicial do jogo
+
+    interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
+
+    interface.iniciar_jogo()
+    while not estados[-1].avaliar_jogo(): 
+        estado_atual = estados[-1]
+        estado_atual.mostrar()  # Mostra o estado (matriz) atual
+        interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
+
         movimento = interface.receber_movimento()  # Recebe um movimento do usuário
             
         if movimento == "Q":  # Verifica se o usuário quer desistir
@@ -144,32 +137,12 @@ def executar_jogo(estado, interface):
             break  # Sai do loop e termina o jogo
 
         # Verifica se o movimento é válido
-        if validar_movimento(estado.matriz, movimento):
-            novo_estado = Estado(estado.matriz, movimento)  # Gera um novo estado
-            return novo_estado
+        if validar_movimento(estado_atual.matriz, movimento):
+            novo_estado = Estado(estado_atual.matriz, movimento)  # Gera um novo estado
+            estados.append(novo_estado)
         else:
             interface.mostrar_mensagem("Movimento inválido, tente novamente.")
 
-# Função principal
-def main():
-    """Executa o fluxo principal do jogo."""
-    # # Cria um estado inicial (solução do puzzle)
-    # estado_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
-    # # Embaralha o estado inicial para criar um estado inicial de jogo
-    # estado_inicial = embaralhar(estado_inicial, movimentos=100)
-    # # Cria o estado inicial do jogo
-    # estado = Estado(estado_inicial, None)
-    estados= []
-    estados_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Exemplo de matriz inicial
-    estados.append(Estado(estados_inicial,"a"))  # Instancia a classe Estado
-
-    interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
-
-    interface.iniciar_jogo()
-    while not estados[-1].avaliar_jogo():
-        estados.append(executar_jogo(estados[-1], interface) )  # Executa o jogo
-        for estado in estados:
-            estado.mostrar()  # Mostra o estado (matriz) atuala
 
 if __name__ == "__main__":
     main()
