@@ -18,6 +18,7 @@ class Estado:
                           [7, 8, 0]]
 
         if self.matriz == matriz_correta :
+            self.mostrar()
             print("VOCE VENCEU, PARABENS!! - FINALIZANDO JOGO...")
             return True
         else:
@@ -124,7 +125,7 @@ def main():
     interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
 
     interface.iniciar_jogo()
-    while not estados[-1].avaliar_jogo():
+    while not estados[-1].avaliar_jogo(): 
         estado_atual = estados[-1]
         estado_atual.mostrar()  # Mostra o estado (matriz) atual
         interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
