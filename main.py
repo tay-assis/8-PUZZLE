@@ -7,7 +7,7 @@ class Estado:
     def __init__(self,  estado_anterior, movimento): 
         """Inicializa o estado com a matriz 3x3.""" 
         if not movimento == None:
-             self.matriz = mover(estado_anterior, movimento) # gera novo estado da matriz
+            self.matriz = mover(estado_anterior, movimento) # gera novo estado da matriz
         else:        
             self.matriz = embaralhar(estado_anterior, movimentos=100) # Embaralha a matriz
     
@@ -35,7 +35,8 @@ class InterfaceUsuario:
         print("2. Resolver com IA (Busca em Largura)")
         print("3. Resolver com IA (Busca em Profundidade)")
         print("4. Resolver com IA (Busca A*)")
-        print("5. Sair")
+        print("5. Resolver com todas as IA's")
+        print("6. Sair")
         
         opcao = input("Digite o número da opção desejada: ")
         return opcao
@@ -209,6 +210,50 @@ def busca_a_estrela(estado_inicial):
     print(f"Total de estados visitados: {estados_visitados}")
     return None
 
+def busca_profundidade(estado_inicial):
+    """Realiza a busca em profundidade."""  # Definindo o estado final objetivo
+    estrutura = []
+    visitados = set()  # Para armazenar estados já visitados
+    movimentos_possiveis = ["W", "S", "A", "D"]
+
+    caminho_inicial = []
+    estados_visitados = 0
+
+    estado_inicial.mostrar()
+
+    # Adicionar estado inicial na estrutura (pilha)
+    estrutura.append((estado_inicial, caminho_inicial))
+    visitados.add(str(estado_inicial.matriz))
+
+    # Enquanto a estrutura não estiver vazia
+    while estrutura:
+        estado_atual, caminho = estrutura.pop()  # Desempilhar
+        
+        # Avaliar estado
+        if estado_atual.avaliar_jogo():  # Se for o estado objetivo
+            print("Movimentos realizados pela IA até chegar no estado final:")
+            print(" -> ".join(caminho))  # Mostrar a sequência de movimentos
+            estado_atual.mostrar()  # Mostra o estado final resolvido
+            print(f'Tamanho do caminho: {len(caminho)}')
+            print(f"Total de estados visitados: {estados_visitados}")
+            return caminho  # Retornar o caminho percorrido
+
+        # Adicionar estados seguintes na estrutura
+        for movimento in movimentos_possiveis:
+            if validar_movimento(estado_atual.matriz, movimento):
+                novo_estado = Estado(estado_atual.matriz, movimento)
+                matriz_str = str(novo_estado.matriz)  # Converter para string para verificar se foi visitado
+                
+                if matriz_str not in visitados:
+                    estrutura.append((novo_estado, caminho + [movimento]))
+                    visitados.add(matriz_str)
+                    estados_visitados += 1
+
+    # Retornar "Sem solução" se esvaziar a estrutura sem encontrar a solução
+    print("Sem solução.")
+    print(f"Total de estados visitados: {estados_visitados}")
+
+
 # Função principal
 def main():
     """Executa o fluxo principal do jogo."""
@@ -222,13 +267,27 @@ def main():
             estados = []
             estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))  # Estado inicial do jogo
             jogada_usuario(estados, interface)  # Chama a função que faz a jogada do usuário
+
         #elif opcao == "2":
         #    busca_largura()
-        #elif opcao == "3":
-        #    busca_profundidade()
+        elif opcao == "3":
+            estados = []
+            estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
+            busca_profundidade(estados[-1])
+
         elif opcao == "4":
+            estados = []
+            estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
             busca_a_estrela(estados[-1])
+
         elif opcao == "5":
+            estados = []
+            estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
+            #busca_largura(estados[-1])
+            busca_profundidade(estados[-1])
+            busca_a_estrela(estados[-1])
+
+        elif opcao == "6":
             interface.finalizar_jogo()
             break
         else:
