@@ -27,6 +27,19 @@ class Estado:
 
 # Definição da classe InterfaceUsuario
 class InterfaceUsuario:
+
+    def exibir_menu(self):
+        print("Bem-vindo ao 8-Puzzle!")
+        print("Escolha uma opção:")
+        print("1. Jogar")
+        print("2. Resolver com IA (Busca em Largura)")
+        print("3. Resolver com IA (Busca em Profundidade)")
+        print("4. Resolver com IA (Busca A*)")
+        print("5. Sair")
+        
+        opcao = input("Digite o número da opção desejada: ")
+        return opcao
+                
     def iniciar_jogo(self):
         os.system('cls' if os.name == 'nt' else 'clear')  # Limpa a tela
         print("Bem-vindo ao jogo dos 8-PUZZLE!")
@@ -113,6 +126,7 @@ def validar_movimento(matriz, movimento):
         return coluna < len(matriz[0]) - 1
     else:
         return False  # Movimento inválido
+<<<<<<< HEAD
 
 class PrioridadeItem:
     def __init__(self, prioridade, g, estado, caminho):
@@ -205,6 +219,14 @@ def main():
 
     interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
     interface.iniciar_jogo()
+=======
+    
+def jogada_usuario(estados, interface):
+    while not estados[-1].avaliar_jogo(): 
+        estado_atual = estados[-1]
+        estado_atual.mostrar()  # Mostra o estado (matriz) atual
+        interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
+>>>>>>> origin/develop
 
     escolha_ia = input("Deseja que a IA resolva o puzzle? (S/N): ").upper()
     if escolha_ia == "S":
@@ -228,6 +250,36 @@ def main():
                 estados.append(novo_estado)
             else:
                 interface.mostrar_mensagem("Movimento inválido, tente novamente.")
+
+# Função principal
+def main():
+    """Executa o fluxo principal do jogo."""
+    
+    interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
+
+    while True:
+        opcao = interface.exibir_menu()
+
+        if opcao == "1":
+            estados = []
+            estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))  # Estado inicial do jogo
+            jogada_usuario(estados, interface)  # Chama a função que faz a jogada do usuário
+        #elif opcao == "2":
+        #    busca_largura()
+        #elif opcao == "3":
+        #    busca_profundidade()
+        #elif opcao == "4":
+        #    busca_a_estrela()
+        elif opcao == "5":
+            interface.finalizar_jogo()
+            break
+        else:
+            print("Opção inválida. Tente novamente.")
+        
+        sair = input("Deseja voltar ao menu principal? (s/n): ")
+        if sair.lower() != 's':
+            print("Saindo do jogo...")
+            break
 
 if __name__ == "__main__":
     main()
