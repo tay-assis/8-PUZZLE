@@ -126,7 +126,6 @@ def validar_movimento(matriz, movimento):
         return coluna < len(matriz[0]) - 1
     else:
         return False  # Movimento inválido
-<<<<<<< HEAD
 
 class PrioridadeItem:
     def __init__(self, prioridade, g, estado, caminho):
@@ -158,8 +157,9 @@ def calcular_heuristica(self, estado):
     return h
 
 
-def busca_a_estrela(estado_inicial, estado_objetivo):
+def busca_a_estrela(estado_inicial):
     """Realiza a busca A* com heurística de Manhattan."""
+    estado_objetivo = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Definindo o estado final objetivo
     estrutura = []
     visitados = set()  # Para armazenar estados já visitados
     movimentos_possiveis = ["W", "S", "A", "D"]
@@ -210,47 +210,6 @@ def busca_a_estrela(estado_inicial, estado_objetivo):
     print(f"Total de estados visitados: {estados_visitados}")
     return None
 
-def main():
-    """Executa o fluxo principal do jogo."""
-    estado_objetivo = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Definindo o estado final objetivo
-
-    estados = []
-    estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))  # Estado inicial
-
-    interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
-    interface.iniciar_jogo()
-=======
-    
-def jogada_usuario(estados, interface):
-    while not estados[-1].avaliar_jogo(): 
-        estado_atual = estados[-1]
-        estado_atual.mostrar()  # Mostra o estado (matriz) atual
-        interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
->>>>>>> origin/develop
-
-    escolha_ia = input("Deseja que a IA resolva o puzzle? (S/N): ").upper()
-    if escolha_ia == "S":
-        print("IA começando a resolver o puzzle...")
-        busca_a_estrela(estados[-1], estado_objetivo)  # Chama a busca A* com heurística de Manhattan
-    else:
-        while not estados[-1].avaliar_jogo(): 
-            estado_atual = estados[-1]
-            estado_atual.mostrar()  # Mostra o estado (matriz) atual
-            interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
-
-            movimento = interface.receber_movimento()  # Recebe um movimento do usuário
-
-            if movimento == "Q":  # Verifica se o usuário quer desistir
-                interface.finalizar_jogo()
-                break  # Sai do loop e termina o jogo
-
-            # Verifica se o movimento é válido
-            if validar_movimento(estado_atual.matriz, movimento):
-                novo_estado = Estado(estado_atual.matriz, movimento)  # Gera um novo estado
-                estados.append(novo_estado)
-            else:
-                interface.mostrar_mensagem("Movimento inválido, tente novamente.")
-
 # Função principal
 def main():
     """Executa o fluxo principal do jogo."""
@@ -268,8 +227,8 @@ def main():
         #    busca_largura()
         #elif opcao == "3":
         #    busca_profundidade()
-        #elif opcao == "4":
-        #    busca_a_estrela()
+        elif opcao == "4":
+            busca_a_estrela(estados[-1])
         elif opcao == "5":
             interface.finalizar_jogo()
             break
