@@ -84,8 +84,7 @@ def mover(matriz, movimento):
         return matriz  # Movimento inválido, retorna a matriz sem alterações
     return troca(matriz, (linha, coluna), nova_pos)  # Movimento válido, retorna a matriz com a troca
 
-# Função para embaralhar o puzzle
-def embaralhar(matriz, movimentos=100):
+def embaralhar(matriz, movimentos):
     """Embaralha o puzzle fazendo movimentos válidos aleatórios a partir da solução."""
     movimentos_possiveis = ["W", "S", "A", "D"]
     movimentos_opostos = {"W": "S", "S": "W", "A": "D", "D": "A"}
