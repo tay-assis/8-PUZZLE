@@ -1,33 +1,73 @@
 import random
 import os
-import tkinter as tk
-from tkinter import messagebox
-import time
+import heapq
 
 # Definição da classe Estado
 class Estado:
     def __init__(self,  estado_anterior, movimento): 
         """Inicializa o estado com a matriz 3x3.""" 
         if not movimento == None:
-             self.matriz =  mover(estado_anterior, movimento) # gera novo estado da matriz
+             self.matriz = mover(estado_anterior, movimento) # gera novo estado da matriz
         else:        
-            self.matriz = embaralhar(estado_anterior,movimentos=10) # Embaralha a matriz
-        
+            self.matriz = embaralhar(estado_anterior, movimentos=100) # Embaralha a matriz
+    
     def avaliar_jogo(self):
         """Avalia se o jogo foi resolvido."""
-        matriz_correta = [[1, 2, 3],            # Matriz Gabarito
-                          [4, 5, 6],
-                          [7, 8, 0]]
-        return self.matriz == matriz_correta
+        matriz_correta = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Matriz Gabarito
+        if self.matriz == matriz_correta:
+            return True
+        else:
+            return False
 
+    def mostrar(self):
+        """Exibe o estado atual do jogo."""
+        for linha in self.matriz:
+            print(" | ".join(str(num) if num != 0 else " " for num in linha))
+            print("-" * 11)
+
+# Definição da classe InterfaceUsuario
+class InterfaceUsuario:
+
+    def exibir_menu(self):
+        print("Bem-vindo ao 8-Puzzle!")
+        print("Escolha uma opção:")
+        print("1. Jogar")
+        print("2. Resolver com IA (Busca em Largura)")
+        print("3. Resolver com IA (Busca em Profundidade)")
+        print("4. Resolver com IA (Busca A*)")
+        print("5. Sair")
+        
+        opcao = input("Digite o número da opção desejada: ")
+        return opcao
+                
+    def iniciar_jogo(self):
+        os.system('cls' if os.name == 'nt' else 'clear')  # Limpa a tela
+        print("Bem-vindo ao jogo dos 8-PUZZLE!")
+        print("MATRIZ INICIAL:")
+
+    def receber_movimento(self):
+        """Recebe um movimento do usuário."""
+        movimento = input().upper()
+        return movimento
+
+    def mostrar_mensagem(self, mensagem):
+        """Exibe uma mensagem para o usuário."""
+        print(mensagem)
+
+    def finalizar_jogo(self):
+        """Exibe uma mensagem ao finalizar o jogo."""
+        print("Obrigado por jogar!")
+
+# Função para trocar posições na matriz
 def troca(matriz, pos1, pos2):
     """Troca duas posições na matriz e retorna o novo estado da matriz."""
-    matriz_copia = matriz
+    matriz_copia = [linha[:] for linha in matriz]  # Copia a matriz
     r1, c1 = pos1
     r2, c2 = pos2
-    matriz_copia[r1][c1], matriz_copia[r2][c2] = matriz[r2][c2], matriz[r1][c1]
+    matriz_copia[r1][c1], matriz_copia[r2][c2] = matriz_copia[r2][c2], matriz_copia[r1][c1]
     return matriz_copia
 
+# Função para mover o zero na matriz
 def mover(matriz, movimento):
     """Move o zero na matriz, se o movimento for válido."""
     linha, coluna = encontrar_posicao_zero(matriz)
@@ -42,7 +82,7 @@ def mover(matriz, movimento):
         nova_pos = (linha, coluna + 1)
     else:
         return matriz  # Movimento inválido, retorna a matriz sem alterações
-    return troca(matriz, (linha, coluna), nova_pos) #Movimento válido, retorna a matriz com a troca
+    return troca(matriz, (linha, coluna), nova_pos)  # Movimento válido, retorna a matriz com a troca
 
 def embaralhar(matriz, movimentos):
     """Embaralha o puzzle fazendo movimentos válidos aleatórios a partir da solução."""
@@ -50,25 +90,26 @@ def embaralhar(matriz, movimentos):
     movimentos_opostos = {"W": "S", "S": "W", "A": "D", "D": "A"}
     
     ultimo_movimento = None
-
     for _ in range(movimentos):
         movimento = random.choice(movimentos_possiveis)
         # Evita que o movimento seja o oposto do anterior
         while (ultimo_movimento and movimento == movimentos_opostos[ultimo_movimento]) or (not validar_movimento(matriz, movimento)):
             movimento = random.choice(movimentos_possiveis)
-            ultimo_movimento = movimento
+        ultimo_movimento = movimento
 
         matriz = mover(matriz, movimento)
     
     return matriz
 
+# Função para encontrar a posição do zero na matriz
 def encontrar_posicao_zero(matriz):
-        """Encontra a posição do zero (espaço vazio) na matriz."""
-        for i in range(len(matriz)):
-            for j in range(len(matriz[i])):
-                if matriz[i][j] == 0:
-                    return i, j
-    
+    """Encontra a posição do zero (espaço vazio) na matriz."""
+    for i in range(len(matriz)):
+        for j in range(len(matriz[i])):
+            if matriz[i][j] == 0:
+                return i, j
+
+# Função para validar se o movimento é possível
 def validar_movimento(matriz, movimento):
     """Valida se um movimento é possível."""
     linha, coluna = encontrar_posicao_zero(matriz)
@@ -85,90 +126,118 @@ def validar_movimento(matriz, movimento):
     else:
         return False  # Movimento inválido
 
-# Definição da classe InterfaceGrafica
-class InterfaceGrafica:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("8-Puzzle")
-        
-        self.tamanho_grade = 3
-        self.botoes = [[None for _ in range(self.tamanho_grade)] for _ in range(self.tamanho_grade)]
-        
-        self.criar_botoes()
-        self.resetar_jogo()
+class PrioridadeItem:
+    def __init__(self, prioridade, g, estado, caminho):
+        self.prioridade = prioridade
+        self.g = g
+        self.estado = estado
+        self.caminho = caminho
 
-    def criar_botoes(self):
-        """Cria os botões para a interface gráfica."""
-        for linha in range(self.tamanho_grade):
-            for coluna in range(self.tamanho_grade):
-                btn = tk.Button(self.root, font=('Arial', 24), width=4, height=2,
-                               command=lambda r=linha, c=coluna: self.click_evento(r, c))
-                btn.grid(row=linha, column=coluna)
-                self.botoes[linha][coluna] = btn
+    # Definir a comparação com base na prioridade (primeiro elemento)
+    def __lt__(self, outro):
+        return self.prioridade < outro.prioridade
 
-    def atualizar_botoes(self):
-        """Atualiza os botões com base no estado atual do jogo."""
-        for linha in range(self.tamanho_grade):
-            for coluna in range(self.tamanho_grade):
-                valor = self.estado_atual.matriz[linha][coluna]
-                if valor == 0:
-                    self.botoes[linha][coluna].config(text='', state='disabled')
-                else:
-                    self.botoes[linha][coluna].config(text=str(valor), state='normal')
+def calcular_heuristica(self, estado):
+    """Calcula a heurística de Manhattan (h(n))."""
+    h = 0
+    posicoes_corretas = {
+        1: (0, 0), 2: (0, 1), 3: (0, 2),
+        4: (1, 0), 5: (1, 1), 6: (1, 2),
+        7: (2, 0), 8: (2, 1), 0: (2, 2)  # Posições corretas do tabuleiro
+    }
+    
+    for i in range(3):
+        for j in range(3):
+            valor = estado[i][j]
+            if valor != 0:
+                linha_correta, coluna_correta = posicoes_corretas[valor]
+                h += abs(i - linha_correta) + abs(j - coluna_correta)
+    
+    return h
 
-    def click_evento(self, linha, coluna):
-        """Manipula o clique do botão e faz o movimento correspondente."""
-        linha_vazia, coluna_vazia = encontrar_posicao_zero(self.estado_atual.matriz)
-        if self.pode_mover(linha, coluna, linha_vazia, coluna_vazia):
-            movimento = self.traduzir_movimento(linha, coluna, linha_vazia, coluna_vazia)
-            if movimento:
-                self.estado_atual = Estado(self.estado_atual.matriz, movimento)
-                self.contador_movimentos += 1
-                self.atualizar_botoes()
-                if self.estado_atual.avaliar_jogo():
-                    self.finalizar_jogo()
 
-    def traduzir_movimento(self, linha, coluna, linha_vazia, coluna_vazia):
-        """Determina o movimento baseado nas posições das peças."""
-        if linha == linha_vazia:
-            return "D" if coluna > coluna_vazia else "A"
-        elif coluna == coluna_vazia:
-            return "S" if linha > linha_vazia else "W"
-        return None
+def busca_a_estrela(estado_inicial):
+    """Realiza a busca A* com heurística de Manhattan."""
+    estado_objetivo = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Definindo o estado final objetivo
+    estrutura = []
+    visitados = set()  # Para armazenar estados já visitados
+    movimentos_possiveis = ["W", "S", "A", "D"]
 
-    def pode_mover(self, linha, coluna, linha_vazia, coluna_vazia):
-        """Verifica se um movimento é possível."""
-        return (linha == linha_vazia and abs(coluna - coluna_vazia) == 1) or (coluna == coluna_vazia and abs(linha - linha_vazia) == 1)
+    caminho_inicial = []
+    estados_visitados = 0
 
-    def exibir_mensagem(self, mensagem):
-        """Exibe uma mensagem para o usuário."""
-        messagebox.showinfo("Informação", mensagem)
+    estado_inicial.mostrar()
 
-    def resetar_jogo(self):
-        """Reseta o jogo com um novo estado inicial e reinicia o temporizador."""
-        self.estado_atual = Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None)
-        self.contador_movimentos = 0
-        self.tempo_inicial = time.time()  # Define o tempo inicial
-        self.atualizar_botoes()
+    # Adicionar estado inicial na estrutura (fila de prioridade)
+    heapq.heappush(estrutura, PrioridadeItem(calcular_heuristica(estado_inicial.matriz, estado_objetivo), 0, estado_inicial, caminho_inicial))
+    visitados.add(str(estado_inicial.matriz))
 
-    def finalizar_jogo(self):
-        """Exibe uma mensagem ao finalizar o jogo e pergunta se deseja reiniciar."""
-        tempo_decorrido = time.time() - self.tempo_inicial  # Calcula o tempo decorrido
-        mensagem = (f"Você venceu!\nMovimentos: {self.contador_movimentos}\n"
-                    f"Tempo: {tempo_decorrido:.2f} segundos")
-        resposta = messagebox.askyesno("Parabéns!", mensagem + "\nDeseja jogar novamente?")
-        
-        if resposta:
-            self.resetar_jogo()
-        else:
-            self.root.quit()  # Fecha a aplicação
-            
+    # Enquanto a estrutura não estiver vazia
+    while estrutura:
+        item = heapq.heappop(estrutura)  # PrioridadeItem
+        g = item.g
+        estado_atual = item.estado
+        caminho = item.caminho
+
+        # Avaliar estado
+        if estado_atual.avaliar_jogo():  # Se for o estado objetivo
+            print("Movimentos realizados pela IA até chegar no estado final:")
+            print(" -> ".join(caminho))  # Mostrar a sequência de movimentos
+            estado_atual.mostrar()  # Mostra o estado final resolvido
+            #for movimento in caminho:
+                #estado_atual = Estado(estado_atual.matriz, movimento)
+                #estado_atual.mostrar()  # Mostrar os estados do caminho final
+            print(f"Total de estados visitados: {estados_visitados}")
+            return caminho  # Retornar o caminho percorrido
+
+        # Adicionar estados seguintes na estrutura
+        for movimento in movimentos_possiveis:
+            if validar_movimento(estado_atual.matriz, movimento):
+                novo_estado = Estado(estado_atual.matriz, movimento)
+                matriz_str = str(novo_estado.matriz)  # Converter para string para verificar se foi visitado
+                
+                if matriz_str not in visitados:
+                    novo_g = g + 1  # Custo do caminho (número de movimentos)
+                    novo_h = calcular_heuristica(novo_estado.matriz, estado_objetivo)
+                    heapq.heappush(estrutura, PrioridadeItem(novo_g + novo_h, novo_g, novo_estado, caminho + [movimento]))
+                    visitados.add(matriz_str)
+                    estados_visitados += 1
+
+
+    # Retornar "Sem solução" se esvaziar a estrutura sem encontrar a solução
+    print("Sem solução.")
+    print(f"Total de estados visitados: {estados_visitados}")
+    return None
+
 # Função principal
 def main():
-    """Executa o fluxo principal do jogo com interface gráfica."""
-    root = tk.Tk()
-    app = InterfaceGrafica(root)
-    root.mainloop()
+    """Executa o fluxo principal do jogo."""
+    
+    interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
+
+    while True:
+        opcao = interface.exibir_menu()
+
+        if opcao == "1":
+            estados = []
+            estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))  # Estado inicial do jogo
+            jogada_usuario(estados, interface)  # Chama a função que faz a jogada do usuário
+        #elif opcao == "2":
+        #    busca_largura()
+        #elif opcao == "3":
+        #    busca_profundidade()
+        elif opcao == "4":
+            busca_a_estrela(estados[-1])
+        elif opcao == "5":
+            interface.finalizar_jogo()
+            break
+        else:
+            print("Opção inválida. Tente novamente.")
+        
+        sair = input("Deseja voltar ao menu principal? (s/n): ")
+        if sair.lower() != 's':
+            print("Saindo do jogo...")
+            break
 
 if __name__ == "__main__":
     main()
