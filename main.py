@@ -215,16 +215,24 @@ def busca_a_estrela(matriz_inicial):
 def calcular_heuristica(estado):
     """Calcula a heurística (distância de Manhattan).""" 
     matriz_atual = estado.matriz
-    matriz_correta = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
     heuristica = 0
     
+    # Mapeamento das posições corretas para cada número
+    pos_correta = {
+        1: (0, 0), 2: (0, 1), 3: (0, 2),
+        4: (1, 0), 5: (1, 1), 6: (1, 2),
+        7: (2, 0), 8: (2, 1), 0: (2, 2)  # Posições corretas do tabuleiro
+    }
+
     for i in range(3):
         for j in range(3):
             num = matriz_atual[i][j]
             if num != 0:
                 pos_atual = (i, j)
-                pos_correta = [(num - 1) // 3, (num - 1) % 3]
-                heuristica += abs(pos_atual[0] - pos_correta[0]) + abs(pos_atual[1] - pos_correta[1])
+                # Acessa a posição correta do número 'num'
+                pos_correta_num = pos_correta[num]
+                # Soma a distância de Manhattan
+                heuristica += abs(pos_atual[0] - pos_correta_num[0]) + abs(pos_atual[1] - pos_correta_num[1])
     
     return heuristica
 
