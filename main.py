@@ -1,6 +1,8 @@
 import copy
 import random
 import os
+import heapq
+import copy
 from collections import deque
 import time
 
@@ -37,6 +39,7 @@ class Estado:
 class InterfaceUsuario:
 
     def exibir_menu(self):
+        os.system('cls' if os.name == 'nt' else 'clear')  # Limpa a tela
         print("Bem-vindo ao 8-Puzzle!")
         print("Escolha uma opção:")
         print("1. Jogar")
@@ -68,7 +71,7 @@ class InterfaceUsuario:
 
 def troca(matriz, pos1, pos2):
     """Troca duas posições na matriz e retorna o novo estado da matriz."""
-    matriz_copia = matriz
+    matriz_copia = copy.deepcopy(matriz)
     r1, c1 = pos1
     r2, c2 = pos2
     matriz_copia[r1][c1], matriz_copia[r2][c2] = matriz[r2][c2], matriz[r1][c1]
@@ -149,7 +152,136 @@ def jogada_usuario(estados, interface):
             estados.append(novo_estado)
         else:
             interface.mostrar_mensagem("Movimento inválido, tente novamente.")
+#--------------IMPLEMENTAÇÃO ESTRELA--------------------------------------------------------------------------            
+class NoEstado:
+    def __init__(self, matriz, g, h, pai=None):
+        self.matriz = matriz
+        self.g = g
+        self.h = h
+        self.f = g + h
+        self.pai = pai
+        self.filho = None
 
+    def definir_filho(self, filho):
+        self.filho = filho
+
+    def __lt__(self, outro):
+        return self.f < outro.f
+    
+    def imprimir_no(self):
+        """Função para imprimir todas as informações do nó.""" 
+        print("Matriz do estado:")
+        for linha in self.matriz:
+            print(linha)
+        print(f"F: {self.f}, G: {self.g}, H: {self.h}")
+        if self.pai:
+            print("Este nó tem um pai.")
+        else:
+            print("Este nó não tem pai.")
+
+    def __str__(self):
+        resultado = "\n".join(" | ".join(str(num) if num != 0 else " " for num in linha) for linha in self.matriz)
+        resultado += f"\nF: {self.f}, G: {self.g}, H: {self.h}"
+        return resultado
+    
+def busca_a_estrela(matriz_inicial):
+    """Implementa a busca A* para resolver o 8-Puzzle.""" 
+    global total_estados
+    
+    estado_inicial = NoEstado(matriz_inicial, 0, 0)
+    fila_prioridade = []
+    
+    heapq.heappush(fila_prioridade, estado_inicial)
+    
+    visitados = set()
+    total_estados = 1  # Inicia com o estado inicial
+    
+    while fila_prioridade:
+        estado_atual = heapq.heappop(fila_prioridade)
+        
+        # Checa se o estado atual é o objetivo
+        if estado_atual.matriz == [[1, 2, 3], [4, 5, 6], [7, 8, 0]]:
+            mostrar_solucao(estado_atual)  # Exibe o caminho da solução
+            print(f"Total de estados gerados: {total_estados}")
+            print(f"Total de jogadas realizadas: {estado_atual.g}")  # Jogadas realizadas são o custo do caminho
+            return
+        
+        visitados.add(tuple(map(tuple, estado_atual.matriz)))
+        
+        for proximo_estado in gerar_estados(estado_atual):
+            if tuple(map(tuple, proximo_estado.matriz)) not in visitados:
+                heapq.heappush(fila_prioridade, proximo_estado)
+                total_estados += 1  # Incrementa o contador de estados gerados
+    
+    print("Sem solução.")
+    
+def calcular_heuristica(estado):
+    """Calcula a heurística (distância de Manhattan).""" 
+    matriz_atual = estado.matriz
+    heuristica = 0
+    
+    # Mapeamento das posições corretas para cada número
+    pos_correta = {
+        1: (0, 0), 2: (0, 1), 3: (0, 2),
+        4: (1, 0), 5: (1, 1), 6: (1, 2),
+        7: (2, 0), 8: (2, 1), 0: (2, 2)  # Posições corretas do tabuleiro
+    }
+
+    for i in range(3):
+        for j in range(3):
+            num = matriz_atual[i][j]
+            if num != 0:
+                pos_atual = (i, j)
+                # Acessa a posição correta do número 'num'
+                pos_correta_num = pos_correta[num]
+                # Soma a distância de Manhattan
+                heuristica += abs(pos_atual[0] - pos_correta_num[0]) + abs(pos_atual[1] - pos_correta_num[1])
+    
+    return heuristica
+
+def gerar_estados(estado_atual):
+    movimentos_possiveis = ["W", "S", "A", "D"]
+    estados = []
+    
+    for movimento in movimentos_possiveis:
+        if validar_movimento(estado_atual.matriz, movimento):
+            # Cria uma nova matriz a partir da matriz atual
+            nova_matriz = mover(estado_atual.matriz, movimento)  # Aplica o movimento
+            
+            # Calcula g (custo do caminho) e h (heurística)
+            g = estado_atual.g + 1
+            h = calcular_heuristica(NoEstado(nova_matriz, g, 0))
+            
+            # Cria o novo estado como um NoEstado, ligando ao estado atual (pai)
+            novo_estado = NoEstado(nova_matriz, g, h, estado_atual)
+            
+            # Adiciona o novo estado à lista de estados possíveis
+            estados.append(novo_estado)
+    
+    return estados
+
+def imprimir_fila(fila):
+    """Imprime os estados na fila de prioridade.""" 
+    print("Estados na fila de prioridade:")
+    for estado in fila:
+        print(estado)
+    print("-" * 20)
+
+def mostrar_solucao(estado_final):
+    """Exibe o caminho da solução, partindo do estado final até o inicial.""" 
+    caminho = []
+    estado_atual = estado_final
+    
+    while estado_atual is not None:
+        caminho.append(estado_atual)
+        estado_atual = estado_atual.pai
+    
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("Resolvendo o Puzzle:\n")
+    for estado in reversed(caminho):
+        print(estado)
+        print("-" * 20)
+        
 def  busca_largura(estado_inicial):
     Fila = deque()   #definindo estrutura 
     estados_visitados = 0
@@ -182,9 +314,6 @@ def  busca_largura(estado_inicial):
             novo_caminho = caminho_atual + [movimento]  # Atualiza o caminho
             Fila.append((novo_estado, novo_caminho))
     return None  # Se não encontrar solução
-            
-
-
 
 # Função principal
 def main():
@@ -203,8 +332,10 @@ def main():
           busca_largura(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
         #elif opcao == "3":
         #    busca_profundidade()
-        #elif opcao == "4":
-        #    busca_a_estrela()
+        elif opcao == "4":
+            matriz_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+            matriz_embaralhada = embaralhar(matriz_inicial, movimentos=10)
+            busca_a_estrela(matriz_embaralhada)
         elif opcao == "5":
             interface.finalizar_jogo()
             break
