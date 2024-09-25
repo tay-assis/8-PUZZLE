@@ -1,7 +1,10 @@
+import copy
 import random
 import os
 import heapq
 import copy
+from collections import deque
+import time
 
 # Definição da classe Estado
 class Estado:
@@ -10,7 +13,7 @@ class Estado:
         if not movimento == None:
              self.matriz =  mover(estado_anterior, movimento) # gera novo estado da matriz
         else:        
-            self.matriz = embaralhar(estado_anterior,movimentos=100) # Embaralha a matriz
+            self.matriz = embaralhar(estado_anterior,movimentos=10) # Embaralha a matriz
         
     def avaliar_jogo(self):
         """Avalia se o jogo foi resolvido."""
@@ -278,6 +281,39 @@ def mostrar_solucao(estado_final):
     for estado in reversed(caminho):
         print(estado)
         print("-" * 20)
+        
+def  busca_largura(estado_inicial):
+    Fila = deque()   #definindo estrutura 
+    estados_visitados = 0
+    caminho_inicial = []
+    movimentos_possiveis = ["W", "S", "A", "D"]
+    Fila.append((estado_inicial, caminho_inicial))
+    
+    while Fila:
+       
+        estado_atual, caminho_atual = Fila.popleft()
+        estados_visitados += 1
+        
+        if estado_atual.avaliar_jogo():  # Se for o estado objetivo
+            print("Estado inicial :")
+            estado_inicial.mostrar()
+            print("Movimentos realizados pela IA até chegar no estado final:")
+            print(" -> ".join(caminho_atual))  # Mostrar a sequência de movimentos
+            estado_atual.mostrar()  # Mostra o estado final resolvido
+            print(f"Total de estados visitados: {estados_visitados}")
+            return  # Retornar
+
+        movimentos_validos = []
+        for movimento in movimentos_possiveis:
+            if validar_movimento(estado_atual.matriz,movimento):
+                movimentos_validos.append(movimento)
+      
+        for movimento in movimentos_validos:
+            nova_matriz = copy.deepcopy(estado_atual.matriz)
+            novo_estado = Estado(nova_matriz, movimento)
+            novo_caminho = caminho_atual + [movimento]  # Atualiza o caminho
+            Fila.append((novo_estado, novo_caminho))
+    return None  # Se não encontrar solução
 
 # Função principal
 def main():
@@ -292,8 +328,8 @@ def main():
             estados = []
             estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))  # Estado inicial do jogo
             jogada_usuario(estados, interface)  # Chama a função que faz a jogada do usuário
-        #elif opcao == "2":
-        #    busca_largura()
+        elif opcao == "2":
+          busca_largura(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
         #elif opcao == "3":
         #    busca_profundidade()
         elif opcao == "4":
