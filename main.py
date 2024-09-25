@@ -62,7 +62,7 @@ class InterfaceUsuario:
 # Função para trocar posições na matriz
 def troca(matriz, pos1, pos2):
     """Troca duas posições na matriz e retorna o novo estado da matriz."""
-    matriz_copia = [linha[:] for linha in matriz]  # Copia a matriz
+    matriz_copia = matriz  # Copia a matriz
     r1, c1 = pos1
     r2, c2 = pos2
     matriz_copia[r1][c1], matriz_copia[r2][c2] = matriz_copia[r2][c2], matriz_copia[r1][c1]
@@ -127,6 +127,25 @@ def validar_movimento(matriz, movimento):
     else:
         return False  # Movimento inválido
 
+def jogada_usuario(estados, interface):
+    while not estados[-1].avaliar_jogo(): 
+            estado_atual = estados[-1]
+            estado_atual.mostrar()  # Mostra o estado (matriz) atual
+            interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
+
+            movimento = interface.receber_movimento()  # Recebe um movimento do usuário
+
+            if movimento == "Q":  # Verifica se o usuário quer desistir
+                interface.finalizar_jogo()
+                break  # Sai do loop e termina o jogo
+
+            # Verifica se o movimento é válido
+            if validar_movimento(estado_atual.matriz, movimento):
+                novo_estado = Estado(estado_atual.matriz, movimento)  # Gera um novo estado
+                estados.append(novo_estado)
+            else:
+                interface.mostrar_mensagem("Movimento inválido, tente novamente.")
+                
 class PrioridadeItem:
     def __init__(self, prioridade, g, estado, caminho):
         self.prioridade = prioridade
