@@ -2,29 +2,22 @@ import copy
 import random
 import os
 import heapq
-import copy
 from collections import deque
 import time
 
 # Definição da classe Estado
 class Estado:
-    def __init__(self,  estado_anterior, movimento): 
+    def __init__(self,  estado_anterior, movimento):
         """Inicializa o estado com a matriz 3x3.""" 
-        if not movimento == None:
-             self.matriz =  mover(estado_anterior, movimento) # gera novo estado da matriz
-        else:        
-            self.matriz = embaralhar(estado_anterior,movimentos=10) # Embaralha a matriz
-        
+        if not movimento is None:
+            self.matriz = mover(estado_anterior, movimento) # gera novo estado da matriz
+        else:
+            self.matriz = embaralhar(estado_anterior, movimentos=20) # Embaralha a matriz
+
     def avaliar_jogo(self):
         """Avalia se o jogo foi resolvido."""
-
-        matriz_correta = [[1, 2, 3],            # Matriz Gabarito
-                          [4, 5, 6], 
-                          [7, 8, 0]]
-
-        if self.matriz == matriz_correta :
-            self.mostrar()
-            print("VOCE VENCEU, PARABENS!! - FINALIZANDO JOGO...")
+        matriz_correta = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]  # Matriz Gabarito
+        if self.matriz == matriz_correta:
             return True
         else:
             return False
@@ -46,16 +39,17 @@ class InterfaceUsuario:
         print("2. Resolver com IA (Busca em Largura)")
         print("3. Resolver com IA (Busca em Profundidade)")
         print("4. Resolver com IA (Busca A*)")
-        print("5. Sair")
-        
+        print("5. Resolver com todas as IA's")
+        print("6. Sair")
+
         opcao = input("Digite o número da opção desejada: ")
         return opcao
-                
+
     def iniciar_jogo(self):
         os.system('cls' if os.name == 'nt' else 'clear')  # Limpa a tela
         print("Bem-vindo ao jogo dos 8-PUZZLE!")
         print("MATRIZ INICIAL:")
-    
+
     def receber_movimento(self):
         """Recebe um movimento do usuário."""
         movimento = input().upper()
@@ -64,23 +58,25 @@ class InterfaceUsuario:
     def mostrar_mensagem(self, mensagem):
         """Exibe uma mensagem para o usuário."""
         print(mensagem)
-    
+
     def finalizar_jogo(self):
         """Exibe uma mensagem ao finalizar o jogo."""
         print("Obrigado por jogar!")
 
+# Função para trocar posições na matriz
 def troca(matriz, pos1, pos2):
     """Troca duas posições na matriz e retorna o novo estado da matriz."""
     matriz_copia = copy.deepcopy(matriz)
     r1, c1 = pos1
     r2, c2 = pos2
-    matriz_copia[r1][c1], matriz_copia[r2][c2] = matriz[r2][c2], matriz[r1][c1]
+    matriz_copia[r1][c1], matriz_copia[r2][c2] = matriz_copia[r2][c2], matriz_copia[r1][c1]
     return matriz_copia
 
+# Função para mover o zero na matriz
 def mover(matriz, movimento):
     """Move o zero na matriz, se o movimento for válido."""
     linha, coluna = encontrar_posicao_zero(matriz)
-    
+
     if movimento == "W":
         nova_pos = (linha - 1, coluna)
     elif movimento == "S":
@@ -91,37 +87,38 @@ def mover(matriz, movimento):
         nova_pos = (linha, coluna + 1)
     else:
         return matriz  # Movimento inválido, retorna a matriz sem alterações
-    return troca(matriz, (linha, coluna), nova_pos) #Movimento válido, retorna a matriz com a troca
+    return troca(matriz, (linha, coluna), nova_pos)  # Movimento válido, retorna a matriz com a troca
 
-def embaralhar(matriz, movimentos=100):
+def embaralhar(matriz, movimentos):
     """Embaralha o puzzle fazendo movimentos válidos aleatórios a partir da solução."""
     movimentos_possiveis = ["W", "S", "A", "D"]
     movimentos_opostos = {"W": "S", "S": "W", "A": "D", "D": "A"}
-    
-    ultimo_movimento = None
 
+    ultimo_movimento = None
     for _ in range(movimentos):
         movimento = random.choice(movimentos_possiveis)
         # Evita que o movimento seja o oposto do anterior
         while (ultimo_movimento and movimento == movimentos_opostos[ultimo_movimento]) or (not validar_movimento(matriz, movimento)):
             movimento = random.choice(movimentos_possiveis)
-            ultimo_movimento = movimento
+        ultimo_movimento = movimento
 
         matriz = mover(matriz, movimento)
-    
+
     return matriz
 
+# Função para encontrar a posição do zero na matriz
 def encontrar_posicao_zero(matriz):
-        """Encontra a posição do zero (espaço vazio) na matriz."""
-        for i in range(len(matriz)):
-            for j in range(len(matriz[i])):
-                if matriz[i][j] == 0:
-                    return i, j
-    
+    """Encontra a posição do zero (espaço vazio) na matriz."""
+    for i in range(len(matriz)):
+        for j in range(len(matriz[i])):
+            if matriz[i][j] == 0:
+                return i, j
+
+# Função para validar se o movimento é possível
 def validar_movimento(matriz, movimento):
     """Valida se um movimento é possível."""
     linha, coluna = encontrar_posicao_zero(matriz)
-    
+
     # Verifica o movimento solicitado
     if movimento == "W":
         return linha > 0
@@ -133,18 +130,14 @@ def validar_movimento(matriz, movimento):
         return coluna < len(matriz[0]) - 1
     else:
         return False  # Movimento inválido
-    
+
 def jogada_usuario(estados, interface):
     while not estados[-1].avaliar_jogo(): 
-        estado_atual = estados[-1]
-        estado_atual.mostrar()  # Mostra o estado (matriz) atual
-        interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
+            estado_atual = estados[-1]
+            estado_atual.mostrar()  # Mostra o estado (matriz) atual
+            interface.mostrar_mensagem("Escolha um movimento (W,S,A,D) ou Q para desistir.")
 
-        movimento = interface.receber_movimento()  # Recebe um movimento do usuário
-            
-        if movimento == "Q":  # Verifica se o usuário quer desistir
-            interface.finalizar_jogo()
-            break  # Sai do loop e termina o jogo
+            movimento = interface.receber_movimento()  # Recebe um movimento do usuário
 
         # Verifica se o movimento é válido
         if validar_movimento(estado_atual.matriz, movimento):
@@ -214,6 +207,38 @@ def busca_a_estrela(matriz_inicial):
                 total_estados += 1  # Incrementa o contador de estados gerados
     
     print("Sem solução.")
+    
+def busca_profundidade(estado_inicial):
+    """Realiza a busca em profundidade até uma profundidade máxima."""
+    estrutura = []
+    movimentos_possiveis = ["W", "S", "A", "D"]
+    caminho_inicial = []
+    estados_visitados = 0
+
+    estado_inicial.mostrar()
+
+    estrutura.append((estado_inicial, caminho_inicial, 0))
+
+    while estrutura:
+        estado_atual, caminho, profundidade = estrutura.pop()
+
+        if estado_atual.avaliar_jogo():
+            print("Movimentos realizados pela IA até chegar no estado final:")
+            print(" -> ".join(caminho))
+            estado_atual.mostrar()
+            print(f'Tamanho do caminho: {len(caminho)}')
+            print(f"Total de estados visitados: {estados_visitados}")
+            return caminho
+
+        if profundidade < 50:
+            for movimento in movimentos_possiveis:
+                if validar_movimento(estado_atual.matriz, movimento):
+                    novo_estado = Estado(estado_atual.matriz, movimento)
+                    estrutura.append((novo_estado, caminho + [movimento], profundidade + 1))
+                    estados_visitados += 1
+
+    print("Sem solução.")
+    print(f"Total de estados visitados: {estados_visitados}")
     
 def calcular_heuristica(estado):
     """Calcula a heurística (distância de Manhattan).""" 
@@ -302,7 +327,7 @@ def  busca_largura(estado_inicial):
             estado_atual.mostrar()  # Mostra o estado final resolvido
             print(f"Total de estados visitados: {estados_visitados}")
             return  # Retornar
-
+          
         movimentos_validos = []
         for movimento in movimentos_possiveis:
             if validar_movimento(estado_atual.matriz,movimento):
@@ -318,7 +343,7 @@ def  busca_largura(estado_inicial):
 # Função principal
 def main():
     """Executa o fluxo principal do jogo."""
-    
+
     interface = InterfaceUsuario()  # Instancia a classe InterfaceUsuario
 
     while True:
@@ -328,20 +353,35 @@ def main():
             estados = []
             estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))  # Estado inicial do jogo
             jogada_usuario(estados, interface)  # Chama a função que faz a jogada do usuário
+            
         elif opcao == "2":
-          busca_largura(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
-        #elif opcao == "3":
-        #    busca_profundidade()
+            estados = []
+            estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
+            busca_largura(estados[-1])
+          
+        elif opcao == "3":
+            estados = []
+            estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
+            busca_profundidade(estados[-1])
+            
         elif opcao == "4":
-            matriz_inicial = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
-            matriz_embaralhada = embaralhar(matriz_inicial, movimentos=10)
-            busca_a_estrela(matriz_embaralhada)
+            estados = []
+            estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
+            busca_a_estrela(estados[-1])
+            
         elif opcao == "5":
+            estados = []
+            estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
+            busca_largura(estados[-1])
+            busca_profundidade(estados[-1])
+            busca_a_estrela(estados[-1])
+
+        elif opcao == "6":
             interface.finalizar_jogo()
             break
         else:
             print("Opção inválida. Tente novamente.")
-        
+
         sair = input("Deseja voltar ao menu principal? (s/n): ")
         if sair.lower() != 's':
             print("Saindo do jogo...")
