@@ -212,45 +212,34 @@ def busca_a_estrela(estado_inicial):
     return None
 
 def busca_profundidade(estado_inicial):
-    """Realiza a busca em profundidade."""  # Definindo o estado final objetivo
+    """Realiza a busca em profundidade até uma profundidade máxima."""
     estrutura = []
-    visitados = set()  # Para armazenar estados já visitados
     movimentos_possiveis = ["W", "S", "A", "D"]
-
     caminho_inicial = []
     estados_visitados = 0
 
     estado_inicial.mostrar()
 
-    # Adicionar estado inicial na estrutura (pilha)
-    estrutura.append((estado_inicial, caminho_inicial))
-    visitados.add(str(estado_inicial.matriz))
+    estrutura.append((estado_inicial, caminho_inicial, 0))
 
-    # Enquanto a estrutura não estiver vazia
     while estrutura:
-        estado_atual, caminho = estrutura.pop()  # Desempilhar
+        estado_atual, caminho, profundidade = estrutura.pop()
 
-        # Avaliar estado
-        if estado_atual.avaliar_jogo():  # Se for o estado objetivo
+        if estado_atual.avaliar_jogo():
             print("Movimentos realizados pela IA até chegar no estado final:")
-            print(" -> ".join(caminho))  # Mostrar a sequência de movimentos
-            estado_atual.mostrar()  # Mostra o estado final resolvido
+            print(" -> ".join(caminho))
+            estado_atual.mostrar()
             print(f'Tamanho do caminho: {len(caminho)}')
             print(f"Total de estados visitados: {estados_visitados}")
-            return caminho  # Retornar o caminho percorrido
+            return caminho
 
-        # Adicionar estados seguintes na estrutura
-        for movimento in movimentos_possiveis:
-            if validar_movimento(estado_atual.matriz, movimento):
-                novo_estado = Estado(estado_atual.matriz, movimento)
-                matriz_str = str(novo_estado.matriz)  # Converter para string para verificar se foi visitado
-
-                if matriz_str not in visitados:
-                    estrutura.append((novo_estado, caminho + [movimento]))
-                    visitados.add(matriz_str)
+        if profundidade < 50:
+            for movimento in movimentos_possiveis:
+                if validar_movimento(estado_atual.matriz, movimento):
+                    novo_estado = Estado(estado_atual.matriz, movimento)
+                    estrutura.append((novo_estado, caminho + [movimento], profundidade + 1))
                     estados_visitados += 1
 
-    # Retornar "Sem solução" se esvaziar a estrutura sem encontrar a solução
     print("Sem solução.")
     print(f"Total de estados visitados: {estados_visitados}")
 
