@@ -12,7 +12,7 @@ class Estado:
         if not movimento is None:
             self.matriz = mover(estado_anterior, movimento) # gera novo estado da matriz
         else:
-            self.matriz = embaralhar(estado_anterior, movimentos=20) # Embaralha a matriz
+            self.matriz = embaralhar(estado_anterior, movimentos=5) # Embaralha a matriz
 
     def avaliar_jogo(self):
         """Avalia se o jogo foi resolvido."""
@@ -140,12 +140,12 @@ def jogada_usuario(estados, interface):
             movimento = interface.receber_movimento()  # Recebe um movimento do usuário
 
         # Verifica se o movimento é válido
-        if validar_movimento(estado_atual.matriz, movimento):
-            novo_estado = Estado(estado_atual.matriz, movimento)  # Gera um novo estado
-            estados.append(novo_estado)
-        else:
-            interface.mostrar_mensagem("Movimento inválido, tente novamente.")
-#--------------IMPLEMENTAÇÃO ESTRELA--------------------------------------------------------------------------            
+            if validar_movimento(estado_atual.matriz, movimento):
+                novo_estado = Estado(estado_atual.matriz, movimento)  # Gera um novo estado
+                estados.append(novo_estado)
+            else:
+                interface.mostrar_mensagem("Movimento inválido, tente novamente.")
+    #--------------IMPLEMENTAÇÃO ESTRELA--------------------------------------------------------------------------            
 class NoEstado:
     def __init__(self, matriz, g, h, pai=None):
         self.matriz = matriz
@@ -301,7 +301,7 @@ def mostrar_solucao(estado_final):
         caminho.append(estado_atual)
         estado_atual = estado_atual.pai
     
-    os.system('cls' if os.name == 'nt' else 'clear')
+   # os.system('cls' if os.name == 'nt' else 'clear')
     print("Resolvendo o Puzzle:\n")
     for estado in reversed(caminho):
         print(estado)
@@ -367,14 +367,19 @@ def main():
         elif opcao == "4":
             estados = []
             estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
-            busca_a_estrela(estados[-1])
+            tay = estados[-1]
+            busca_a_estrela(tay.matriz)
             
         elif opcao == "5":
             estados = []
             estados.append(Estado([[1, 2, 3], [4, 5, 6], [7, 8, 0]], None))
+            print("BUSCA EM LARGURA:")
             busca_largura(estados[-1])
+            print("BUSCA EM PROFUNDIDADE:")
             busca_profundidade(estados[-1])
-            busca_a_estrela(estados[-1])
+            print("BUSCA EM A*:")
+            tay = estados[-1]
+            busca_a_estrela(tay.matriz)
 
         elif opcao == "6":
             interface.finalizar_jogo()
